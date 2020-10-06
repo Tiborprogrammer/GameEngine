@@ -1,16 +1,13 @@
 #include <iostream>
-
 #include <glad/glad.h>
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
+#include "Window.h"
+#include "Application.h"
 
 using namespace std;
-
+/*
 // glfwDestroyWindow(window);
-
-void error_callback(int error, const char* description) {
-    fprintf(stderr, "Error: %s\n", description);
-}
 
 void terminate_engine() {
     cout << "Terminating..." << endl;
@@ -31,7 +28,11 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
 
-int main() {
+void error_callback(int error, const char* description) {
+    fprintf(stderr, "Error: %s\n", description);
+}
+
+int main2() {
     glfwSetErrorCallback(error_callback);
 
     cout << "Init..." << endl;
@@ -89,4 +90,10 @@ int main() {
     terminate_engine();
     return 0;
 }
+*/
+int main() {
+    Application application;
 
+    application.run();
+
+}
