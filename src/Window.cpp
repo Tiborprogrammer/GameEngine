@@ -7,10 +7,60 @@
 void windowCloseCallback(GLFWwindow* glfwWindow) {
     Event windowCloseEvent = Event();
     windowCloseEvent.eventType = EventType::WindowClose;
-    windowCloseEvent.eventCategory = EventCategoryApplication;
+    windowCloseEvent.eventCategory = EventCategoryWindow;
 
     auto* eventProcessingFn = (Window::EventProcessingFn*)glfwGetWindowUserPointer(glfwWindow);
     (*eventProcessingFn)(windowCloseEvent);
+}
+
+void windowSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
+    Event windowResizeEvent = Event();
+    windowResizeEvent.eventType = EventType::WindowResize;
+    windowResizeEvent.eventCategory = EventCategoryWindow;
+    windowResizeEvent.eventData.resizeData = {width, height};
+
+    auto* eventProcessingFn = (Window::EventProcessingFn*)glfwGetWindowUserPointer(glfwWindow);
+    (*eventProcessingFn)(windowResizeEvent);
+}
+
+void mouseButtonCallback(GLFWwindow* glfwWindow, int button, int action, int mods) {
+    Event mouseButtonEvent = Event();
+    mouseButtonEvent.eventType = (action == GLFW_PRESS ? EventType::MouseButtonPressed : EventType::MouseButtonReleased);
+    mouseButtonEvent.eventCategory = EventCategoryMouseButton | EventCategoryMouse;
+    mouseButtonEvent.eventData.button = button;
+
+    auto* eventProcessingFn = (Window::EventProcessingFn*)glfwGetWindowUserPointer(glfwWindow);
+    (*eventProcessingFn)(mouseButtonEvent);
+}
+
+void mouseMovedCallback(GLFWwindow* glfwWindow, double x, double y) {
+    Event mouseMovedEvent = Event();
+    mouseMovedEvent.eventType = EventType::MouseMoved;
+    mouseMovedEvent.eventCategory = EventCategoryMouse;
+    mouseMovedEvent.eventData.mouseMovedData = {x, y};
+
+
+    auto* eventProcessingFn = (Window::EventProcessingFn*)glfwGetWindowUserPointer(glfwWindow);
+    (*eventProcessingFn)(mouseMovedEvent);
+}
+
+void keyCallback(GLFWwindow* glfwWindow, int key, int scanCode, int action, int mods) {
+    Event keyEvent = Event();
+    keyEvent.eventCategory = EventCategoryMouse;
+    if (action == GLFW_PRESS) {
+        keyEvent.eventData.keyPressed = {key, true};
+        keyEvent.eventType = EventType::KeyPressed;
+    } else if (action == GLFW_REPEAT) {
+        keyEvent.eventData.keyPressed = {key, false};
+        keyEvent.eventType = EventType::KeyPressed;
+    } else {
+        keyEvent.eventData.keyReleased = key;
+        keyEvent.eventType = EventType::KeyReleased;
+    }
+
+
+    auto* eventProcessingFn = (Window::EventProcessingFn*)glfwGetWindowUserPointer(glfwWindow);
+    (*eventProcessingFn)(keyEvent);
 }
 
 void error_callback(int error, const char* description) {
@@ -67,7 +117,13 @@ Window::Window(const WindowProperties &windowProperties) : windowProperties(wind
 
 
     glfwSetWindowUserPointer(this->glfwwindow, &eventProcessingFn);
+
+    // Events
     glfwSetWindowCloseCallback(this->glfwwindow, windowCloseCallback);
+    glfwSetWindowSizeCallback(this->glfwwindow, windowSizeCallback);
+    glfwSetMouseButtonCallback(this->glfwwindow, mouseButtonCallback);
+    glfwSetCursorPosCallback(this->glfwwindow, mouseMovedCallback);
+    glfwSetKeyCallback(this->glfwwindow, keyCallback);
     initSuccessful = true;
 
 }

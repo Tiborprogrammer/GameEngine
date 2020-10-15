@@ -6,6 +6,7 @@
 #define GAMEENGINE_APPLICATION_H
 
 #include "Window.h"
+#include "events/Event.h"
 
 class Application {
     std::unique_ptr<Window> window;

@@ -19,7 +19,7 @@ enum class EventType {
 
 enum EventCategory {
     None = 0,
-    EventCategoryApplication    = BIT(0),
+    EventCategoryWindow    = BIT(0),
     EventCategoryInput          = BIT(1),
     EventCategoryKeyboard       = BIT(2),
     EventCategoryMouse          = BIT(3),
@@ -29,8 +29,35 @@ enum EventCategory {
 class Event {
 public:
     EventType eventType;
-    EventCategory eventCategory;
+    unsigned int eventCategory;
     bool handled = false;
+    union EventData {
+
+        // Window resize event
+        struct {
+            int width;
+            int height;
+        } resizeData;
+
+        // Mouse button pressed or released event
+        int button;
+
+        // Mouse moved event
+        struct {
+            double x;
+            double y;
+        } mouseMovedData;
+
+        // Key Released event
+        int keyReleased;
+
+        // Key Pressed event
+        struct {
+            int key;
+            bool isFirstTime;
+        } keyPressed;
+
+    } eventData;
 
     bool isCategory(EventCategory category) { return (category & eventCategory); }
     std::string GetName()  {

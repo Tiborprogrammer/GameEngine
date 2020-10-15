@@ -1,3 +1,4 @@
+set(CMAKE_C_COMPILER "/Library/Developer/CommandLineTools/usr/bin/cc")
 cmake_minimum_required(VERSION 3.17)
 project(GameEngine)
 
