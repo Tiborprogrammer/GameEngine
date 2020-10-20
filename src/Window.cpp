@@ -105,7 +105,7 @@ Window::Window(const WindowProperties &windowProperties) : windowProperties(wind
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-    glfwWindowHint(GLFW_OPENGL_PROFILE,GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     this->glfwwindow = glfwCreateWindow(windowProperties.width, windowProperties.height, windowProperties.title.c_str(), nullptr, nullptr);
 
@@ -178,6 +178,8 @@ Window::Window(const WindowProperties &windowProperties) : windowProperties(wind
     glGenBuffers(1, &indicesBufferId);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesBufferId);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int)*4, vertexes, GL_STATIC_DRAW);*/
+
+    GLenum error_code = glGetError();
 }
 
 void Window::setEventProcessingFn(const EventProcessingFn &eventProcessingFn) {
@@ -192,6 +194,9 @@ void Window::update() {
     glBindVertexArray(vertexArrayId);
     glUseProgram(this->shaderProgramId);
     glDrawArrays(GL_TRIANGLES, 0, 3);
+
+
+    GLenum error_code = glGetError();
 
     // Swap front and back buffers
     glfwSwapBuffers(this->glfwwindow);
