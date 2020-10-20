@@ -5,6 +5,7 @@
 #ifndef GAMEENGINE_APPLICATION_H
 #define GAMEENGINE_APPLICATION_H
 
+#include <memory>
 #include "Window.h"
 #include "events/Event.h"
 

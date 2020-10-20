@@ -3,9 +3,14 @@ cmake_minimum_required(VERSION 3.17)
 project(GameEngine)
 
 set(CMAKE_CXX_STANDARD 20)
-find_package(glfw3 3.3.2 REQUIRED)
+find_package(glfw3 3.3 REQUIRED)
 
 add_executable(GameEngine src/main.cpp src/events/Event.h src/Window.cpp src/Window.h src/Application.cpp src/Application.h)
+
+if (UNIX)
+    set (CMAKE_CXX_LINK_EXECUTABLE "${CMAKE_CXX_LINK_EXECUTABLE} -ldl  ")
+endif(UNIX)
+
 
 # glad
 set(GLAD_DIR "glad")

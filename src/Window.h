@@ -12,6 +12,7 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <utility>
+#include <functional>
 
 struct WindowProperties {
     WindowProperties(int width = 600, int height = 600, std::string title = "GameEngine") : width(width), height(height), title(std::move(title)) {}
