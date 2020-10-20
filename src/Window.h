@@ -24,6 +24,7 @@ struct WindowProperties {
 class Window {
     GLFWwindow* glfwwindow;
     unsigned int vertexArrayId;
+    unsigned int shaderProgramId;
 public:
     using EventProcessingFn = std::function<void(Event&)>;
     bool initSuccessful = false;

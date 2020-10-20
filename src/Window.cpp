@@ -4,6 +4,23 @@
 
 #include "Window.h"
 
+// vertex = point/pos
+const char* vertexShader = R"(
+#version 400
+layout (location=0) in vec3 vp;
+void main() {
+  gl_Position = vec4(vp, 1.0);
+}
+)";
+
+const char* colorShader = R"(
+#version 400
+out vec4 frag_colour;
+void main() {
+  frag_colour = vec4(1.0, 0.2, 0.2, 1.0);
+};
+)";
+
 void windowCloseCallback(GLFWwindow* glfwWindow) {
     Event windowCloseEvent = Event();
     windowCloseEvent.eventType = EventType::WindowClose;
@@ -111,7 +128,7 @@ Window::Window(const WindowProperties &windowProperties) : windowProperties(wind
         return;
     }
 
-    glfwSwapInterval(0);
+    glfwSwapInterval(1);
 
 
     glfwSetWindowUserPointer(this->glfwwindow, &eventProcessingFn);
@@ -124,23 +141,43 @@ Window::Window(const WindowProperties &windowProperties) : windowProperties(wind
     glfwSetKeyCallback(this->glfwwindow, keyCallback);
     initSuccessful = true;
 
-    float vertexes[4][3] = {{-0.5f, -0.5f, 0.0f}, {0.5f, -0.5f, 0.0f}, {0.5f,  0.5f, 0.0f}, {-0.5f,  0.5f, 0.0f}};
-
-    glGenVertexArrays(1, &vertexArrayId);
-    glBindVertexArray(vertexArrayId);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0);
-    glEnableVertexAttribArray(0);
+    float vertexes[3][3] = {{-0.5f, -0.5f, 0.0f}, {0.5f, -0.5f, 0.0f}, {0.5f,  0.5f, 0.0f}};
 
     unsigned int bufferId;
     glGenBuffers(1, &bufferId);
     glBindBuffer(GL_ARRAY_BUFFER, bufferId);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*4*3, vertexes, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*3*3, vertexes, GL_STATIC_DRAW);
 
-    unsigned int indicesArray[] = {0, 1, 2, 3};
+    glGenVertexArrays(1, &vertexArrayId);
+    glBindVertexArray(vertexArrayId);
+    glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, bufferId);
+    // 0 = current buffer, number of dimensions in a vertex, type of positions, coordinate type(-1 to 1), size of each vertex(0 = auto)
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+
+    unsigned int vertexShaderId = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertexShaderId, 1, &vertexShader, nullptr);
+
+    unsigned int colorShaderId = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(colorShaderId, 1, &colorShader, nullptr);
+
+    glCompileShader(vertexShaderId);
+    glCompileShader(colorShaderId);
+
+    this->shaderProgramId = glCreateProgram();
+    glAttachShader(this->shaderProgramId, vertexShaderId);
+    glAttachShader(this->shaderProgramId, colorShaderId);
+
+    glLinkProgram(this->shaderProgramId);
+
+
+
+    /*unsigned int indicesArray[] = {0, 1, 2, 3};
     unsigned int indicesBufferId;
     glGenBuffers(1, &indicesBufferId);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesBufferId);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int)*4, vertexes, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int)*4, vertexes, GL_STATIC_DRAW);*/
 }
 
 void Window::setEventProcessingFn(const EventProcessingFn &eventProcessingFn) {
@@ -148,28 +185,14 @@ void Window::setEventProcessingFn(const EventProcessingFn &eventProcessingFn) {
 }
 
 void Window::update() {
-
     // Render here!
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Set background color to black and opaque
     glClear(GL_COLOR_BUFFER_BIT);         // Clear the color buffer (background)
 
     glBindVertexArray(vertexArrayId);
-    glColor3f(1.0f, 0.0f, 0.0f);
-    glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, nullptr);
-/*  glMatrixMode(GL_MODELVIEW); //Switch to the drawing perspective
-    glLoadIdentity(); //Reset the drawing perspective
+    glUseProgram(this->shaderProgramId);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
 
-    // Draw a Red 1x1 Square centered at origin
-    glBegin(GL_QUADS);              // Each set of 4 vertices form a quad
-    glColor3f(1.0f, 0.0f, 0.0f); // Red
-    glVertex2f(-0.5f, -0.5f);    // x, y
-    glVertex2f( 0.5f, -0.5f);
-    glVertex2f( 0.5f,  0.5f);
-    glVertex2f(-0.5f,  0.5f);
-    glEnd();
-
-   glFlush();  // Render now
-*/
     // Swap front and back buffers
     glfwSwapBuffers(this->glfwwindow);
 
