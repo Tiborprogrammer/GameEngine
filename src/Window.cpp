@@ -156,10 +156,10 @@ Window::Window(const WindowProperties &windowProperties) : windowProperties(wind
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
 
-    unsigned int vertexShaderId = glCreateShader(GL_VERTEX_SHADER);
+    GLuint vertexShaderId = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertexShaderId, 1, &vertexShader, nullptr);
 
-    unsigned int colorShaderId = glCreateShader(GL_FRAGMENT_SHADER);
+    GLuint colorShaderId = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(colorShaderId, 1, &colorShader, nullptr);
 
     GLint val1, val2;
@@ -195,8 +195,8 @@ void Window::update() {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Set background color to black and opaque
     glClear(GL_COLOR_BUFFER_BIT);         // Clear the color buffer (background)
 
-    glBindVertexArray(vertexArrayId);
     glUseProgram(this->shaderProgramId);
+    glBindVertexArray(vertexArrayId);
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
 
