@@ -162,6 +162,10 @@ Window::Window(const WindowProperties &windowProperties) : windowProperties(wind
     unsigned int colorShaderId = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(colorShaderId, 1, &colorShader, nullptr);
 
+    GLint val1, val2;
+    glGetShaderiv(colorShaderId, GL_COMPILE_STATUS, &val1);
+    glGetShaderiv(vertexShaderId, GL_COMPILE_STATUS, &val2);
+
     glCompileShader(vertexShaderId);
     glCompileShader(colorShaderId);
 
