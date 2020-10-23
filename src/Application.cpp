@@ -16,10 +16,13 @@ void Application::receiveEvent(Event& event) {
             std::cout << "Resize: " << event.eventData.resizeData.width << "  " << event.eventData.resizeData.height << "\n";
             break;
 
-        case EventType::MouseMoved :
-            mousePositionAbsolute = {(float)event.eventData.mouseMovedData.x, (float)event.eventData.mouseMovedData.y};
+        case EventType::MouseMoved : {
+            float xPos = (float)event.eventData.mouseMovedData.x;
+            float yPos = (float)window->getHeight() - ((float)event.eventData.mouseMovedData.y);
+            mousePositionAbsolute = {xPos, yPos};
             std::cout << "Mouse moved: " << event.eventData.mouseMovedData.x << "  " << event.eventData.mouseMovedData.y << "\n";
             break;
+        }
 
         case EventType::MouseButtonReleased:
             std::cout << "Mouse button released" << "\n";
@@ -58,8 +61,6 @@ void Application::receiveEvent(Event& event) {
 
         default:
             break;
-
-
     }
 }
 
@@ -87,10 +88,10 @@ void Application::run() {
         //window->drawTriangle(vertexes);
 
         Vector2 mousePos = window->pixelToPercent((this->mousePositionAbsolute));
-        float xMousePos = window->pixelToPercent(mousePos).x;
-        float yMpousePos = window->pixelToPercent(mousePos).y;
+        float xMousePos = mousePos.x;
+        float yMousePos = mousePos.y;
 
-        Vertex3 mouseControlledTriangle[3] = {{xMousePos, yMpousePos, 0.0f}, {xMousePos + 0.5f, yMpousePos, 0.0f}, {xMousePos, yMpousePos - 0.5f, 0.0f}};
+        Vertex3 mouseControlledTriangle[3] = {{xMousePos, yMousePos, 0.0f}, {xMousePos + 0.5f, yMousePos, 0.0f}, {xMousePos, yMousePos - 0.5f, 0.0f}};
 
         window->drawTriangle(mouseControlledTriangle);
 
