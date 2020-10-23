@@ -3,23 +3,9 @@
 //
 
 #include "Window.h"
-
-// vertex = point/pos
-const char* vertexShader = R"(
-#version 330
-layout (location=0) in vec3 vp;
-void main() {
-  gl_Position = vec4(vp, 1.0);
-}
-)";
-
-const char* colorShader = R"(
-#version 330
-layout (location=0) out vec4 frag_colour;
-void main() {
-  frag_colour = vec4(1.0, 0.2, 0.2, 1.0);
-}
-)";
+#include <fstream>
+#include <sstream>
+#include <utility>
 
 void windowCloseCallback(GLFWwindow* glfwWindow) {
     Event windowCloseEvent = Event();
@@ -95,6 +81,49 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
 
+struct File {
+    std::string file;
+    bool failed;
+};
+
+File readFile(std::string name) {
+    std::ifstream inFile(name);
+    if (inFile.fail())
+        return {"", true};
+
+    std::stringstream buffer;
+    buffer << inFile.rdbuf();
+
+    return {buffer.str(), false};
+}
+
+GLuint buildShader(std::string name, GLenum shaderType) {
+    File shaderSourceCode = readFile(name);
+    if (shaderSourceCode.failed) {
+        std::cout << "The file " << name << " was not found! \n";
+        shaderSourceCode.file = "";
+    }
+    const char* arrayShaderSourceCode = shaderSourceCode.file.c_str();
+
+    GLuint shaderId = glCreateShader(shaderType);
+    glShaderSource(shaderId, 1, &arrayShaderSourceCode, nullptr);
+
+    glCompileShader(shaderId);
+
+    GLint compileStatus;
+    glGetShaderiv(shaderId, GL_COMPILE_STATUS, &compileStatus);
+    if (compileStatus == GL_TRUE)
+        std::cout << name << " was successfully compiled \n";
+    else {
+        std::cout << name << " failed to compile! \n";
+        char buffer[2000];
+        glGetShaderInfoLog(shaderId, 2000, nullptr, buffer);
+        std::cout << buffer << std::endl;
+    }
+
+    return shaderId;
+}
+
 Window::Window(const WindowProperties &windowProperties) : windowProperties(windowProperties) {
     glfwSetErrorCallback(error_callback);
 
@@ -143,40 +172,24 @@ Window::Window(const WindowProperties &windowProperties) : windowProperties(wind
     glfwSetKeyCallback(this->glfwwindow, keyCallback);
     initSuccessful = true;
 
-    float vertexes[3][3] = {{-0.5f, -0.5f, 0.0f}, {0.5f, -0.5f, 0.0f}, {0.5f,  0.5f, 0.0f}};
+    glGenBuffers(1, &this->triangleBufferId);
 
-    GLuint bufferId;
-    glGenBuffers(1, &bufferId);
-    glBindBuffer(GL_ARRAY_BUFFER, bufferId);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*3*3, vertexes, GL_STATIC_DRAW);
 
     glGenVertexArrays(1, &vertexArrayId);
     glBindVertexArray(vertexArrayId);
-    glBindBuffer(GL_ARRAY_BUFFER, bufferId);
+    glBindBuffer(GL_ARRAY_BUFFER, this->triangleBufferId);
     // 0 = current buffer, number of dimensions in a vertex, type of positions, coordinate type(-1 to 1), size of each vertex(0 = auto)
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
     glEnableVertexAttribArray(0);
 
-    GLuint vertexShaderId = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShaderId, 1, &vertexShader, nullptr);
-
-    GLuint colorShaderId = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(colorShaderId, 1, &colorShader, nullptr);
-
-   // GLint val1, val2;
-    //glGetShaderiv(colorShaderId, GL_COMPILE_STATUS, &val1);
-    //glGetShaderiv(vertexShaderId, GL_COMPILE_STATUS, &val2);
-
-    glCompileShader(vertexShaderId);
-    glCompileShader(colorShaderId);
+    GLuint fragmentShaderId = buildShader("shaders/fragmentShader.glsl", GL_FRAGMENT_SHADER);
+    GLuint vertexShaderId = buildShader("shaders/vertexShader.glsl", GL_VERTEX_SHADER);
 
     this->shaderProgramId = glCreateProgram();
     glAttachShader(this->shaderProgramId, vertexShaderId);
-    glAttachShader(this->shaderProgramId, colorShaderId);
-
+    glAttachShader(this->shaderProgramId, fragmentShaderId);
 
     glLinkProgram(this->shaderProgramId);
-
 
     /*unsigned int indicesArray[] = {0, 1, 2, 3};
     unsigned int indicesBufferId;
@@ -189,18 +202,34 @@ void Window::setEventProcessingFn(const EventProcessingFn &eventProcessingFn) {
     this->eventProcessingFn = eventProcessingFn;
 }
 
-void Window::update() {
+void Window::startDraw() {
     // Render here!
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Set background color to black and opaque
     glClear(GL_COLOR_BUFFER_BIT);         // Clear the color buffer (background)
+}
 
-    glUseProgram(this->shaderProgramId);
-    glBindVertexArray(vertexArrayId);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-
+void Window::endDraw() {
     // Swap front and back buffers
     glfwSwapBuffers(this->glfwwindow);
 
     // Poll for and process events
     glfwPollEvents();
+}
+void Window::drawTriangle(Vertex3 vertexes[3]) {
+    glUseProgram(this->shaderProgramId);
+
+    glBindBuffer(GL_ARRAY_BUFFER, this->triangleBufferId);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*3*3, vertexes, GL_STATIC_DRAW);
+    glBindVertexArray(vertexArrayId);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+}
+
+Vector2 Window::pixelToPercent(Vector2 position) {
+    float xPercentage = position.x / windowProperties.width;
+    float yPercentage = position.y / windowProperties.height;
+    return {lerp(xPercentage, -1, 1), lerp(yPercentage, -1, 1)};
+}
+
+float Window::lerp(float percentage, float min, float max) {
+    return min + ((max - min) * percentage);
 }

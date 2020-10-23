@@ -22,10 +22,19 @@ struct WindowProperties {
     std::string title;
 };
 
+typedef float Vertex3[3];
+
+struct Vector2 {
+    float x;
+    float y;
+};
+
 class Window {
     GLFWwindow* glfwwindow;
     GLuint vertexArrayId;
     GLuint shaderProgramId;
+    GLuint triangleBufferId;
+
 public:
     using EventProcessingFn = std::function<void(Event&)>;
     bool initSuccessful = false;
@@ -39,9 +48,14 @@ public:
     Window(const WindowProperties &windowProperties = WindowProperties());
 
 
-    void update();
+    void drawTriangle(Vertex3 vertexes[3]);
+    void startDraw();
+    void endDraw();
     void setEventProcessingFn(const EventProcessingFn& eventProcessingFn);
     static void shutDown();
+
+    Vector2 pixelToPercent(Vector2 position);
+    float lerp(float percentage, float toMin, float toMax);
 };
 
 

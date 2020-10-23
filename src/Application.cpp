@@ -7,7 +7,6 @@
 #include <memory>
 
 void Application::receiveEvent(Event& event) {
-
     switch (event.eventType) {
         case EventType::WindowClose :
             OnWindowClose(event);
@@ -30,11 +29,30 @@ void Application::receiveEvent(Event& event) {
             break;
 
         case EventType::KeyPressed:
+            if (event.eventData.keyPressed.key == GLFW_KEY_LEFT)
+                left = true;
+            if (event.eventData.keyPressed.key == GLFW_KEY_RIGHT)
+                right = true;
+            if (event.eventData.keyPressed.key == GLFW_KEY_UP)
+                up = true;
+            if (event.eventData.keyPressed.key == GLFW_KEY_DOWN)
+                down = true;
+            if (event.eventData.keyPressed.key == GLFW_KEY_SPACE)
+                movementSpeed += 0.5;
+
             std::cout << "Key pressed: " << event.eventData.keyPressed.key << "  " << event.eventData.keyPressed.isFirstTime << "\n";
             break;
 
         case EventType::KeyReleased:
-            std::cout << "Key released: " << event.eventData.keyReleased << "\n";
+            if (event.eventData.keyPressed.key == GLFW_KEY_LEFT)
+                left = false;
+            if (event.eventData.keyPressed.key == GLFW_KEY_RIGHT)
+                right = false;
+            if (event.eventData.keyPressed.key == GLFW_KEY_UP)
+                up = false;
+            if (event.eventData.keyPressed.key == GLFW_KEY_DOWN)
+                down = false;
+
             break;
 
         default:
@@ -53,7 +71,20 @@ Application::Application() {
 
 void Application::run() {
     while (running) {
-        window->update();
+        if (left)
+            xOffset -= 0.001 * movementSpeed;
+        if (right)
+            xOffset += 0.001 * movementSpeed;
+
+        if (up)
+            yOffset += 0.001 * movementSpeed;
+        if (down)
+            yOffset -= 0.001 * movementSpeed;
+
+        Vertex3 vertexes[3] = {{-0.5f + xOffset, -0.5f + yOffset, 0.0f}, {0.5f + xOffset, -0.5f + yOffset, 0.0f}, {0.5f + xOffset, 0.5f + yOffset, 0.0f}};
+        window->startDraw();
+        window->drawTriangle(vertexes);
+        window->endDraw();
     }
 }
 
