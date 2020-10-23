@@ -22,6 +22,7 @@ public:
     float movementSpeed = 1;
     float xOffset = 0.0;
     float yOffset = 0.0;
+    Vector2 mousePositionAbsolute = {0, 0};
 
     bool left = false;
     bool right = false;

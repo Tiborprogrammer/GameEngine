@@ -17,6 +17,7 @@ void Application::receiveEvent(Event& event) {
             break;
 
         case EventType::MouseMoved :
+            mousePositionAbsolute = {(float)event.eventData.mouseMovedData.x, (float)event.eventData.mouseMovedData.y};
             std::cout << "Mouse moved: " << event.eventData.mouseMovedData.x << "  " << event.eventData.mouseMovedData.y << "\n";
             break;
 
@@ -83,7 +84,16 @@ void Application::run() {
 
         Vertex3 vertexes[3] = {{-0.5f + xOffset, -0.5f + yOffset, 0.0f}, {0.5f + xOffset, -0.5f + yOffset, 0.0f}, {0.5f + xOffset, 0.5f + yOffset, 0.0f}};
         window->startDraw();
-        window->drawTriangle(vertexes);
+        //window->drawTriangle(vertexes);
+
+        Vector2 mousePos = window->pixelToPercent((this->mousePositionAbsolute));
+        float xMousePos = window->pixelToPercent(mousePos).x;
+        float yMpousePos = window->pixelToPercent(mousePos).y;
+
+        Vertex3 mouseControlledTriangle[3] = {{xMousePos, yMpousePos, 0.0f}, {xMousePos + 0.5f, yMpousePos, 0.0f}, {xMousePos, yMpousePos - 0.5f, 0.0f}};
+
+        window->drawTriangle(mouseControlledTriangle);
+
         window->endDraw();
     }
 }
