@@ -83,20 +83,23 @@ void Application::run() {
         if (down)
             yOffset -= 0.001 * movementSpeed;
 
-        Vertex3 vertexes[3] = {{-0.5f + xOffset, -0.5f + yOffset, 0.0f}, {0.5f + xOffset, -0.5f + yOffset, 0.0f}, {0.5f + xOffset, 0.5f + yOffset, 0.0f}};
+
         window->startDraw();
-        //window->drawTriangle(vertexes);
+
+        window->setColor({0.5, 0.5, 0}, 1);
 
         Vector2 mousePos = window->pixelToPercent((this->mousePositionAbsolute));
         float xMousePos = mousePos.x;
         float yMousePos = mousePos.y;
 
-        Vertex3 mouseControlledTriangle[3] = {{xMousePos, yMousePos, 0.0f}, {xMousePos + 0.5f, yMousePos, 0.0f}, {xMousePos, yMousePos - 0.5f, 0.0f}};
+        Vector2 mouseControlledTriangle[3] = {{xMousePos, yMousePos}, {xMousePos + 0.5f, yMousePos}, {xMousePos, yMousePos - 0.5f}};
 
         window->drawTriangle(mouseControlledTriangle);
 
-        Vertex3 rect[2] = {{0, 0, 0}, {0.9, 0.5, 0}};
-        window->drawRect(rect);
+        window->setColor({0, 0.5, 0.5}, 1);
+
+        Vector2 rect[2] = {{0, 0}, {0.9, 0.5}};
+        window->drawRect(rect[0], rect[1]);
 
         window->endDraw();
     }

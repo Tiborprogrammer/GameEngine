@@ -182,7 +182,7 @@ Window::Window(const WindowProperties &windowProperties) : windowProperties(wind
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
     glEnableVertexAttribArray(0);
 
-    GLuint fragmentShaderId = buildShader("shaders/fragmentShader.glsl", GL_FRAGMENT_SHADER);
+    GLuint fragmentShaderId = buildShader("shaders/colorPosShader.glsl", GL_FRAGMENT_SHADER);
     GLuint vertexShaderId = buildShader("shaders/vertexShader.glsl", GL_VERTEX_SHADER);
 
     this->shaderProgramId = glCreateProgram();
@@ -215,11 +215,13 @@ void Window::endDraw() {
     // Poll for and process events
     glfwPollEvents();
 }
-void Window::drawTriangle(Vertex3 vertexes[3]) {
+void Window::drawTriangle(Vector2 vertexes[3]) {
+    Vertex3 trianglePoints[3] = {{vertexes[0].x, vertexes[0].y, 0}, {vertexes[1].x, vertexes[1].y, 0}, {vertexes[2].x, vertexes[2].y, 0}};
+
     glUseProgram(this->shaderProgramId);
 
     glBindBuffer(GL_ARRAY_BUFFER, this->triangleBufferId);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*3*3, vertexes, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*3*3, trianglePoints, GL_STATIC_DRAW);
     glBindVertexArray(vertexArrayId);
     glDrawArrays(GL_TRIANGLES, 0, 3);
 }
@@ -234,13 +236,29 @@ float Window::lerp(float percentage, float min, float max) {
     return min + ((max - min) * percentage);
 }
 
-void Window::drawRect(Vertex3 vertexes[2]) {
-    Vector2 topLeft = {vertexes[1][0], vertexes[1][1]};
-    Vector2 bottomLeft = {vertexes[0][0], vertexes[0][1]};
+void Window::drawRect(Vector2 vertexes[2]) {
+    Vector2 bottomLeft = vertexes[0];
+    Vector2 topRight = vertexes[1];
 
-    Vertex3 triangle1Vertexes[3] = {{bottomLeft.x, topLeft.y, 0}, {bottomLeft.x, bottomLeft.y, 0}, {topLeft.x, bottomLeft.y, 0}};
-    Vertex3 triangle2Vertexes[3] = {{topLeft.x, bottomLeft.y, 0}, {topLeft.x, topLeft.y, 0}, {bottomLeft.x, topLeft.y, 0}};
+    Vector2 triangle1Vertexes[3] = {{bottomLeft.x, topRight.y},
+                                    {bottomLeft.x, bottomLeft.y},
+                                    {topRight.x,   bottomLeft.y}};
+
+    Vector2 triangle2Vertexes[3] = {{topRight.x,   bottomLeft.y},
+                                    {topRight.x,   topRight.y},
+                                    {bottomLeft.x, topRight.y}};
 
     drawTriangle(triangle1Vertexes);
     drawTriangle(triangle2Vertexes);
+}
+
+void Window::drawRect(Vector2 bottomLeft, Vector2 size) {
+    Vector2 twoPositionsOfRect[2] = {bottomLeft, bottomLeft+size};
+
+    drawRect(twoPositionsOfRect);
+};
+
+void Window::setColor(Vector3 color, float opacity) {
+    GLint colorVarLocation = glGetUniformLocation(this->shaderProgramId, "color");
+    glProgramUniform4f(this->shaderProgramId, colorVarLocation, color.x, color.y, color.z, opacity);
 }

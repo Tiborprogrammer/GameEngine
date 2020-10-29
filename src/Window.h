@@ -27,6 +27,46 @@ typedef float Vertex3[3];
 struct Vector2 {
     float x;
     float y;
+
+    Vector2(Vertex3 vertex3) {
+        x = vertex3[0];
+        y = vertex3[1];
+    }
+
+    Vector2(float x, float y) {
+        this->x = x;
+        this->y = y;
+    }
+
+    Vector2 operator+(const Vector2 &other) {
+        return {x+other.x, y+other.y};
+    }
+};
+
+struct Vector3 {
+    float x;
+    float y;
+    float z;
+
+    Vector3(Vertex3 vertex3) {
+        x = vertex3[0];
+        y = vertex3[1];
+        z = vertex3[2];
+    }
+
+    Vector3(float x, float y, float z) {
+        this->x = x;
+        this->y = y;
+        this->z = z;
+    }
+
+    Vector2 toVector2() {
+        return Vector2(x, y);
+    }
+
+    Vector3 operator+(const Vector3 &other) {
+        return {x+other.x, y+other.y, z+other.z};
+    }
 };
 
 class Window {
@@ -48,12 +88,14 @@ public:
     Window(const WindowProperties &windowProperties = WindowProperties());
 
 
-    void drawTriangle(Vertex3 vertexes[3]);
-    void drawRect(Vertex3 vertexes[2]);
+    void drawTriangle(Vector2 vertexes[3]);
+    void drawRect(Vector2 vertexes[2]);
+    void drawRect(Vector2 bottomLeft, Vector2 size);
     void startDraw();
     void endDraw();
     void setEventProcessingFn(const EventProcessingFn& eventProcessingFn);
     static void shutDown();
+    void setColor(Vector3 color, float opacity);
 
     Vector2 pixelToPercent(Vector2 position);
     float lerp(float percentage, float toMin, float toMax);
