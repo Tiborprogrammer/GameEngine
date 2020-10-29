@@ -95,6 +95,9 @@ void Application::run() {
 
         window->drawTriangle(mouseControlledTriangle);
 
+        Vertex3 rect[2] = {{0, 0, 0}, {0.9, 0.5, 0}};
+        window->drawRect(rect);
+
         window->endDraw();
     }
 }

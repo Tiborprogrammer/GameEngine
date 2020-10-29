@@ -49,6 +49,7 @@ public:
 
 
     void drawTriangle(Vertex3 vertexes[3]);
+    void drawRect(Vertex3 vertexes[2]);
     void startDraw();
     void endDraw();
     void setEventProcessingFn(const EventProcessingFn& eventProcessingFn);

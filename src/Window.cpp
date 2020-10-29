@@ -233,3 +233,14 @@ Vector2 Window::pixelToPercent(Vector2 position) {
 float Window::lerp(float percentage, float min, float max) {
     return min + ((max - min) * percentage);
 }
+
+void Window::drawRect(Vertex3 vertexes[2]) {
+    Vector2 topLeft = {vertexes[1][0], vertexes[1][1]};
+    Vector2 bottomLeft = {vertexes[0][0], vertexes[0][1]};
+
+    Vertex3 triangle1Vertexes[3] = {{bottomLeft.x, topLeft.y, 0}, {bottomLeft.x, bottomLeft.y, 0}, {topLeft.x, bottomLeft.y, 0}};
+    Vertex3 triangle2Vertexes[3] = {{topLeft.x, bottomLeft.y, 0}, {topLeft.x, topLeft.y, 0}, {bottomLeft.x, topLeft.y, 0}};
+
+    drawTriangle(triangle1Vertexes);
+    drawTriangle(triangle2Vertexes);
+}
