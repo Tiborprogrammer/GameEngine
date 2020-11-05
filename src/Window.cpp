@@ -6,6 +6,8 @@
 #include <fstream>
 #include <sstream>
 #include <utility>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 void windowCloseCallback(GLFWwindow* glfwWindow) {
     Event windowCloseEvent = Event();
@@ -182,7 +184,7 @@ Window::Window(const WindowProperties &windowProperties) : windowProperties(wind
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
     glEnableVertexAttribArray(0);
 
-    GLuint fragmentShaderId = buildShader("shaders/colorPosShader.glsl", GL_FRAGMENT_SHADER);
+    GLuint fragmentShaderId = buildShader("shaders/fragmentShader.glsl", GL_FRAGMENT_SHADER);
     GLuint vertexShaderId = buildShader("shaders/vertexShader.glsl", GL_VERTEX_SHADER);
 
     this->shaderProgramId = glCreateProgram();
@@ -190,6 +192,8 @@ Window::Window(const WindowProperties &windowProperties) : windowProperties(wind
     glAttachShader(this->shaderProgramId, fragmentShaderId);
 
     glLinkProgram(this->shaderProgramId);
+
+    setCamera(Vector2(0, 0));
 
     /*unsigned int indicesArray[] = {0, 1, 2, 3};
     unsigned int indicesBufferId;
@@ -263,17 +267,24 @@ void Window::setColor(Vector3 color, float opacity) {
     glProgramUniform4f(this->shaderProgramId, colorVarLocation, color.x, color.y, color.z, opacity);
 }
 
-void Window::Update() {
+void Window::update() {
     this->startDraw();
 
-    for (Layer &layer : this->layers) {
-        layer.Update();
-        layer.Render();
+    for (Layer* layer : this->layers) {
+        layer->Update();
+        layer->Render();
     }
 
     this->endDraw();
 }
 
-void Window::AddLayer(Layer &layer) {
+void Window::addLayer(Layer* layer) {
     this->layers.push_back(layer);
+}
+
+void Window::setCamera(Vector2 position) {
+    glm::mat4 cameraMatrix = glm::mat4(1.0);
+
+    GLint cameraMatrixLocation = glGetUniformLocation(this->shaderProgramId, "cameraMatrix");
+    glUniformMatrix4fv(cameraMatrixLocation, 1, GL_FALSE, glm::value_ptr(cameraMatrix));
 }

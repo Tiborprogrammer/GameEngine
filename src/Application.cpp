@@ -3,7 +3,7 @@
 //
 
 #include "Application.h"
-
+#include "BackgroundLayer.h"
 #include <memory>
 
 void Application::receiveEvent(Event& event) {
@@ -65,43 +65,22 @@ void Application::receiveEvent(Event& event) {
 }
 
 Application::Application() {
-    window = std::make_unique<Window>();
+    window = new Window();
     window->setEventProcessingFn([this](Event& event) {
         this->receiveEvent(event);
     });
+
+
+    BackgroundLayer* backgroundLayer = new BackgroundLayer(*window);
+
+    window->addLayer(backgroundLayer);
+
 }
+
 
 void Application::run() {
     while (running) {
-        if (left)
-            xOffset -= 0.001 * movementSpeed;
-        if (right)
-            xOffset += 0.001 * movementSpeed;
-
-        if (up)
-            yOffset += 0.001 * movementSpeed;
-        if (down)
-            yOffset -= 0.001 * movementSpeed;
-
-
-        window->startDraw();
-
-        window->setColor({0.5, 0.5, 0}, 1);
-
-        Vector2 mousePos = window->pixelToPercent((this->mousePositionAbsolute));
-        float xMousePos = mousePos.x;
-        float yMousePos = mousePos.y;
-
-        Vector2 mouseControlledTriangle[3] = {{xMousePos, yMousePos}, {xMousePos + 0.5f, yMousePos}, {xMousePos, yMousePos - 0.5f}};
-
-        window->drawTriangle(mouseControlledTriangle);
-
-        window->setColor({0, 0.5, 0.5}, 1);
-
-        Vector2 rect[2] = {{0, 0}, {0.9, 0.5}};
-        window->drawRect(rect[0], rect[1]);
-
-        window->endDraw();
+        window->update();
     }
 }
 

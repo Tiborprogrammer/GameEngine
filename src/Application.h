@@ -10,7 +10,7 @@
 #include "events/Event.h"
 
 class Application {
-    std::unique_ptr<Window> window;
+    Window* window;
     bool running = true;
 
 public:

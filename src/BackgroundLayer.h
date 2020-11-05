@@ -8,6 +8,11 @@
 #include "Layer.h"
 
 class BackgroundLayer : public Layer {
+
+public:
+    void Render() override;
+
+    BackgroundLayer(Window& window) : Layer(window) {};
 };
 
 

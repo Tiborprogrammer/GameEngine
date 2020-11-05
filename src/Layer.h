@@ -8,14 +8,12 @@
 class Window;
 
 class Layer {
+public:
     Window& window;
 
-public:
     Layer(Window& window);
-    virtual void Update() = 0;
-    virtual void Render() = 0;
-
-    virtual ~Layer() = 0;
+    virtual void Update() {};
+    virtual void Render() {};
 };
 
 

@@ -66,6 +66,7 @@ public:
         if (eventType >= EventType::AppTick and eventType <= EventType::AppRender) return "APP EVENT";
         if (eventType >= EventType::KeyPressed and eventType <= EventType::KeyReleased) return "KEYBOARD EVENT";
         if (eventType >= EventType::MouseButtonPressed and eventType <= EventType::MouseScrolled) return "MOUSE EVENT";
+        return "NONE";
     };
 };
 

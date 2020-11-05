@@ -76,7 +76,7 @@ class Window {
     GLuint vertexArrayId;
     GLuint shaderProgramId;
     GLuint triangleBufferId;
-    std::vector<Layer> layers;
+    std::vector<Layer*> layers;
 
 public:
     using EventProcessingFn = std::function<void(Event&)>;
@@ -99,8 +99,9 @@ public:
     void setEventProcessingFn(const EventProcessingFn& eventProcessingFn);
     static void shutDown();
     void setColor(Vector3 color, float opacity);
-    void Update();
-    void AddLayer(Layer &layer);
+    void update();
+    void addLayer(Layer* layer);
+    void setCamera(Vector2 position);
 
     Vector2 pixelToPercent(Vector2 position);
     float lerp(float percentage, float toMin, float toMax);
