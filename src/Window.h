@@ -13,6 +13,8 @@
 #include <iostream>
 #include <utility>
 #include <functional>
+#include "Layer.h"
+#include <vector>
 
 struct WindowProperties {
     WindowProperties(int width = 600, int height = 600, std::string title = "GameEngine") : width(width), height(height), title(std::move(title)) {}
@@ -74,6 +76,7 @@ class Window {
     GLuint vertexArrayId;
     GLuint shaderProgramId;
     GLuint triangleBufferId;
+    std::vector<Layer> layers;
 
 public:
     using EventProcessingFn = std::function<void(Event&)>;
@@ -96,6 +99,8 @@ public:
     void setEventProcessingFn(const EventProcessingFn& eventProcessingFn);
     static void shutDown();
     void setColor(Vector3 color, float opacity);
+    void Update();
+    void AddLayer(Layer &layer);
 
     Vector2 pixelToPercent(Vector2 position);
     float lerp(float percentage, float toMin, float toMax);

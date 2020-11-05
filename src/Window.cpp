@@ -262,3 +262,18 @@ void Window::setColor(Vector3 color, float opacity) {
     GLint colorVarLocation = glGetUniformLocation(this->shaderProgramId, "color");
     glProgramUniform4f(this->shaderProgramId, colorVarLocation, color.x, color.y, color.z, opacity);
 }
+
+void Window::Update() {
+    this->startDraw();
+
+    for (Layer &layer : this->layers) {
+        layer.Update();
+        layer.Render();
+    }
+
+    this->endDraw();
+}
+
+void Window::AddLayer(Layer &layer) {
+    this->layers.push_back(layer);
+}
