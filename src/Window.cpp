@@ -285,6 +285,7 @@ void Window::addLayer(Layer* layer) {
 void Window::setCamera(Vector2 position) {
     glm::mat4 cameraMatrix = glm::mat4(1.0);
 
+    glUseProgram(this->shaderProgramId);
     GLint cameraMatrixLocation = glGetUniformLocation(this->shaderProgramId, "cameraMatrix");
     glUniformMatrix4fv(cameraMatrixLocation, 1, GL_FALSE, glm::value_ptr(cameraMatrix));
 }
