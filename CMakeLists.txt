@@ -4,7 +4,10 @@ project(GameEngine)
 
 set(CMAKE_CXX_STANDARD 20)
 find_package(glfw3 3.3 REQUIRED)
-find_package(GLM REQUIRED)
+
+if (APPLE)
+    find_package(GLM REQUIRED)
+endif(APPLE)
 
 add_executable(GameEngine src/main.cpp src/events/Event.h src/Window.cpp src/Window.h src/Application.cpp src/Application.h src/Layer.cpp src/Layer.h src/BackgroundLayer.cpp src/BackgroundLayer.h)
 
