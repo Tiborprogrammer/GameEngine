@@ -192,7 +192,7 @@ Window::Window(const WindowProperties &windowProperties) : windowProperties(wind
 
     glLinkProgram(this->shaderProgramId);
 
-    setCamera(Vector2(0, 1));
+    translateCamera(Vector2(0, 1));
     /*unsigned int indicesArray[] = {0, 1, 2, 3};
     unsigned int indicesBufferId;
     glGenBuffers(1, &indicesBufferId);
@@ -280,29 +280,33 @@ void Window::addLayer(Layer* layer) {
     this->layers.push_back(layer);
 }
 
-void Window::setCamera(Vector2 position) {
+void Window::translateCamera(Vector2 position) {
     // TODO:
-    //  - keep track of camera matrix and make change to it over time
     //  - be able to reset the camera matrix
     //  - explain camera matrix logic
     //      - why is there an extra dimension
     //      - how does translation work
     //      - how does scaling work (scale 3 first coord or last one, but better to scale 3 first coordinates)
     //      - how does rotation work (restate equations and then re-express them as matrix multiplications)
-    glm::mat4 projectionMatrix = glm::mat4(1.0);
-    projectionMatrix = glm::translate(projectionMatrix, glm::vec3(-position.x, -position.y, 0));
+    projectionMatrix = glm::translate(this->projectionMatrix, glm::vec3(-position.x, -position.y, 0));
 
-    glUseProgram(this->shaderProgramId);
-    GLint cameraMatrixLocation = glGetUniformLocation(this->shaderProgramId, "projectionMatrix");
-    glUniformMatrix4fv(cameraMatrixLocation, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+    setCamMatrixInShader();
 }
 
 void Window::rotateCamera(float angle) {
-    glm::mat4 projectionMatrix = glm::mat4(1.0);
-    projectionMatrix = glm::rotate(projectionMatrix, glm::radians(angle), glm::vec3(0, 0, 1));
+    projectionMatrix = glm::rotate(this->projectionMatrix, glm::radians(angle), glm::vec3(0, 0, 1));
+
+    setCamMatrixInShader();
+}
+
+void Window::resetCamera() {
+    this->projectionMatrix = glm::mat4(1.0);
+    setCamMatrixInShader();
+}
 
 
-    glUseProgram(this->shaderProgramId);
-    GLint cameraMatrixLocation = glGetUniformLocation(this->shaderProgramId, "projectionMatrix");
-    glUniformMatrix4fv(cameraMatrixLocation, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+void Window::setCamMatrixInShader() {
+    glUseProgram(shaderProgramId);
+    GLint cameraMatrixLocation = glGetUniformLocation(shaderProgramId, "projectionMatrix");
+    glUniformMatrix4fv(cameraMatrixLocation, 1, GL_FALSE, glm::value_ptr(this->projectionMatrix));
 }

@@ -1,4 +1,4 @@
-#define STB_IMAGE_IMPLEMENTATION
+/*#define STB_IMAGE_IMPLEMENTATION
 #include "libs/stb_image.h"
 
 #include <glad/glad.h>
@@ -77,4 +77,4 @@ int readImage() {
 
 
     return 0;
-}
+}*/

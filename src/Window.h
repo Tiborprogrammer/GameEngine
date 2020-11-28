@@ -15,6 +15,7 @@
 #include <functional>
 #include "Layer.h"
 #include <vector>
+#include <glm/detail/type_mat4x4.hpp>
 
 struct WindowProperties {
     WindowProperties(int width = 600, int height = 600, std::string title = "GameEngine") : width(width), height(height), title(std::move(title)) {}
@@ -77,6 +78,7 @@ class Window {
     GLuint shaderProgramId;
     GLuint triangleBufferId;
     std::vector<Layer*> layers;
+    glm::mat4 projectionMatrix = glm::mat4(1.0);
 
 public:
     using EventProcessingFn = std::function<void(Event&)>;
@@ -101,11 +103,15 @@ public:
     void setColor(Vector3 color, float opacity);
     void update();
     void addLayer(Layer* layer);
-    void setCamera(Vector2 position);
+    void translateCamera(Vector2 position);
     void rotateCamera(float angle);
+    void resetCamera();
 
     Vector2 pixelToPercent(Vector2 position);
     float lerp(float percentage, float toMin, float toMax);
+
+private:
+    void setCamMatrixInShader();
 };
 
 
