@@ -5,7 +5,6 @@
 #include "Window.h"
 #include <fstream>
 #include <sstream>
-#include <utility>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -282,6 +281,14 @@ void Window::addLayer(Layer* layer) {
 }
 
 void Window::setCamera(Vector2 position) {
+    // TODO:
+    //  - keep track of camera matrix and make change to it over time
+    //  - be able to reset the camera matrix
+    //  - explain camera matrix logic
+    //      - why is there an extra dimension
+    //      - how does translation work
+    //      - how does scaling work (scale 3 first coord or last one, but better to scale 3 first coordinates)
+    //      - how does rotation work (restate equations and then re-express them as matrix multiplications)
     glm::mat4 projectionMatrix = glm::mat4(1.0);
     projectionMatrix = glm::translate(projectionMatrix, glm::vec3(-position.x, -position.y, 0));
 
