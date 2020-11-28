@@ -9,7 +9,12 @@ if (APPLE)
     find_package(GLM REQUIRED)
 endif(APPLE)
 
-add_executable(GameEngine src/main.cpp src/events/Event.h src/Window.cpp src/Window.h src/Application.cpp src/Application.h src/Layer.cpp src/Layer.h src/BackgroundLayer.cpp src/BackgroundLayer.h)
+add_executable(GameEngine src/main.cpp src/events/Event.h
+        src/Window.cpp src/Window.h
+        src/Application.cpp src/Application.h
+        src/Layer.cpp src/Layer.h
+        src/BackgroundLayer.cpp src/BackgroundLayer.h
+        src/libs/stb_image.h src/readimage.cpp)
 
 if (UNIX)
     set (CMAKE_CXX_LINK_EXECUTABLE "${CMAKE_CXX_LINK_EXECUTABLE} -ldl  ")
