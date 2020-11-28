@@ -191,8 +191,7 @@ Window::Window(const WindowProperties &windowProperties) : windowProperties(wind
     glAttachShader(this->shaderProgramId, fragmentShaderId);
 
     glLinkProgram(this->shaderProgramId);
-
-    translateCamera(Vector2(0, 1));
+    setCamMatrixInShader();
     /*unsigned int indicesArray[] = {0, 1, 2, 3};
     unsigned int indicesBufferId;
     glGenBuffers(1, &indicesBufferId);
@@ -281,13 +280,6 @@ void Window::addLayer(Layer* layer) {
 }
 
 void Window::translateCamera(Vector2 position) {
-    // TODO:
-    //  - be able to reset the camera matrix
-    //  - explain camera matrix logic
-    //      - why is there an extra dimension
-    //      - how does translation work
-    //      - how does scaling work (scale 3 first coord or last one, but better to scale 3 first coordinates)
-    //      - how does rotation work (restate equations and then re-express them as matrix multiplications)
     projectionMatrix = glm::translate(this->projectionMatrix, glm::vec3(-position.x, -position.y, 0));
 
     setCamMatrixInShader();
