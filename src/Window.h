@@ -102,6 +102,7 @@ public:
     void update();
     void addLayer(Layer* layer);
     void setCamera(Vector2 position);
+    void rotateCamera(float angle);
 
     Vector2 pixelToPercent(Vector2 position);
     float lerp(float percentage, float toMin, float toMax);

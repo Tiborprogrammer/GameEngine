@@ -193,8 +193,7 @@ Window::Window(const WindowProperties &windowProperties) : windowProperties(wind
 
     glLinkProgram(this->shaderProgramId);
 
-    setCamera(Vector2(0, 0));
-
+    setCamera(Vector2(0, 1));
     /*unsigned int indicesArray[] = {0, 1, 2, 3};
     unsigned int indicesBufferId;
     glGenBuffers(1, &indicesBufferId);
@@ -283,9 +282,20 @@ void Window::addLayer(Layer* layer) {
 }
 
 void Window::setCamera(Vector2 position) {
-    glm::mat4 cameraMatrix = glm::mat4(1.0);
+    glm::mat4 projectionMatrix = glm::mat4(1.0);
+    projectionMatrix = glm::translate(projectionMatrix, glm::vec3(-position.x, -position.y, 0));
 
     glUseProgram(this->shaderProgramId);
-    GLint cameraMatrixLocation = glGetUniformLocation(this->shaderProgramId, "cameraMatrix");
-    glUniformMatrix4fv(cameraMatrixLocation, 1, GL_FALSE, glm::value_ptr(cameraMatrix));
+    GLint cameraMatrixLocation = glGetUniformLocation(this->shaderProgramId, "projectionMatrix");
+    glUniformMatrix4fv(cameraMatrixLocation, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+}
+
+void Window::rotateCamera(float angle) {
+    glm::mat4 projectionMatrix = glm::mat4(1.0);
+    projectionMatrix = glm::rotate(projectionMatrix, glm::radians(angle), glm::vec3(0, 0, 1));
+
+
+    glUseProgram(this->shaderProgramId);
+    GLint cameraMatrixLocation = glGetUniformLocation(this->shaderProgramId, "projectionMatrix");
+    glUniformMatrix4fv(cameraMatrixLocation, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
 }

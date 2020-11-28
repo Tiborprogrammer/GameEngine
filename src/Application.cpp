@@ -79,7 +79,10 @@ Application::Application() {
 
 
 void Application::run() {
+    float angle = 0;
     while (running) {
+        angle += 1;
+        window->rotateCamera(angle);
         window->update();
     }
 }
