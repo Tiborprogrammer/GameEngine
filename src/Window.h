@@ -26,6 +26,7 @@ struct WindowProperties {
 };
 
 typedef float Vertex3[3];
+typedef float Vertex5[5];
 
 struct Vector2 {
     float x;
@@ -72,13 +73,51 @@ struct Vector3 {
     }
 };
 
+
+struct Vector5 {
+    float x;
+    float y;
+    float z;
+    float u;
+    float v;
+
+    Vector5(Vertex5 vertex5) {
+        x = vertex5[0];
+        y = vertex5[1];
+        z = vertex5[2];
+        u = vertex5[3];
+        v = vertex5[4];
+    }
+
+    Vector5(float x, float y, float z, float u, float v) {
+        this->x = x;
+        this->y = y;
+        this->z = z;
+        this->u = u;
+        this->v = v;
+    }
+
+    Vector2 toVector2() {
+        return Vector2(x, y);
+    }
+
+    Vector5 operator+(const Vector5 &other) {
+        return {x+other.x, y+other.y, z+other.z, u+other.u, v+other.v};
+    }
+};
+
+
 class Window {
     GLFWwindow* glfwwindow;
     GLuint vertexArrayId;
-    GLuint shaderProgramId;
+    GLuint mainShaderProgramId;
+    GLuint textureShaderProgramId;
+    GLuint triangleTextureBufferId;
+    GLuint textureVertexArrayId;
     GLuint triangleBufferId;
     std::vector<Layer*> layers;
     glm::mat4 projectionMatrix = glm::mat4(1.0);
+
 
 public:
     using EventProcessingFn = std::function<void(Event&)>;
@@ -106,12 +145,14 @@ public:
     void translateCamera(Vector2 position);
     void rotateCamera(float angle);
     void resetCamera();
+    void drawTextureTriangle(Vector5 triangleVertexes[3], std::string textureFile);
 
     Vector2 pixelToPercent(Vector2 position);
     float lerp(float percentage, float toMin, float toMax);
 
 private:
     void setCamMatrixInShader();
+    static GLuint createShaderProgram(std::string &vertexShaderFileName, std::string &fragmentShaderFileName);
 };
 
 

@@ -2,6 +2,9 @@
 // Created by Tibor Varga on 18/09/2020.
 //
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "libs/stb_image.h"
+
 #include "Window.h"
 #include <fstream>
 #include <sstream>
@@ -70,6 +73,7 @@ void keyCallback(GLFWwindow* glfwWindow, int key, int scanCode, int action, int 
 void error_callback(int error, const char* description) {
     fprintf(stderr, "Error: %s\n", description);
 }
+
 void Window::shutDown() {
     std::cout << "Terminating..." << std::endl;
     glfwTerminate();
@@ -183,20 +187,32 @@ Window::Window(const WindowProperties &windowProperties) : windowProperties(wind
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
     glEnableVertexAttribArray(0);
 
-    GLuint fragmentShaderId = buildShader("shaders/fragmentShader.glsl", GL_FRAGMENT_SHADER);
-    GLuint vertexShaderId = buildShader("shaders/vertexShader.glsl", GL_VERTEX_SHADER);
+    this->mainShaderProgramId = createShaderProgram((std::string &) "shaders/vertexShader.glsl",
+                                                    (std::string &) "shaders/fragmentShader.glsl");
 
-    this->shaderProgramId = glCreateProgram();
-    glAttachShader(this->shaderProgramId, vertexShaderId);
-    glAttachShader(this->shaderProgramId, fragmentShaderId);
+    this->textureShaderProgramId = createShaderProgram((std::string &) "shaders/textureVertexShader",
+                                                       (std::string &) "shaders/textureFragmentShader.glsl");
 
-    glLinkProgram(this->shaderProgramId);
     setCamMatrixInShader();
     /*unsigned int indicesArray[] = {0, 1, 2, 3};
     unsigned int indicesBufferId;
     glGenBuffers(1, &indicesBufferId);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesBufferId);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int)*4, vertexes, GL_STATIC_DRAW);*/
+}
+
+GLuint Window::createShaderProgram(std::string &vertexShaderFileName, std::string &fragmentShaderFileName) {
+    GLuint shaderProgramId;
+    GLuint fragmentShaderId = buildShader(fragmentShaderFileName, GL_FRAGMENT_SHADER);
+    GLuint vertexShaderId = buildShader(vertexShaderFileName, GL_VERTEX_SHADER);
+
+    shaderProgramId = glCreateProgram();
+    glAttachShader(shaderProgramId, vertexShaderId);
+    glAttachShader(shaderProgramId, fragmentShaderId);
+
+    glLinkProgram(shaderProgramId);
+
+    return shaderProgramId;
 }
 
 void Window::setEventProcessingFn(const EventProcessingFn &eventProcessingFn) {
@@ -216,10 +232,11 @@ void Window::endDraw() {
     // Poll for and process events
     glfwPollEvents();
 }
+
 void Window::drawTriangle(Vector2 vertexes[3]) {
     Vertex3 trianglePoints[3] = {{vertexes[0].x, vertexes[0].y, 0}, {vertexes[1].x, vertexes[1].y, 0}, {vertexes[2].x, vertexes[2].y, 0}};
 
-    glUseProgram(this->shaderProgramId);
+    glUseProgram(this->mainShaderProgramId);
 
     glBindBuffer(GL_ARRAY_BUFFER, this->triangleBufferId);
     glBufferData(GL_ARRAY_BUFFER, sizeof(float)*3*3, trianglePoints, GL_STATIC_DRAW);
@@ -260,8 +277,8 @@ void Window::drawRect(Vector2 bottomLeft, Vector2 size) {
 };
 
 void Window::setColor(Vector3 color, float opacity) {
-    GLint colorVarLocation = glGetUniformLocation(this->shaderProgramId, "color");
-    glProgramUniform4f(this->shaderProgramId, colorVarLocation, color.x, color.y, color.z, opacity);
+    GLint colorVarLocation = glGetUniformLocation(this->mainShaderProgramId, "color");
+    glProgramUniform4f(this->mainShaderProgramId, colorVarLocation, color.x, color.y, color.z, opacity);
 }
 
 void Window::update() {
@@ -296,9 +313,52 @@ void Window::resetCamera() {
     setCamMatrixInShader();
 }
 
-
+// TODO: Make it work for texture shaders
 void Window::setCamMatrixInShader() {
-    glUseProgram(shaderProgramId);
-    GLint cameraMatrixLocation = glGetUniformLocation(shaderProgramId, "projectionMatrix");
+    glUseProgram(mainShaderProgramId);
+    GLint cameraMatrixLocation = glGetUniformLocation(mainShaderProgramId, "projectionMatrix");
     glUniformMatrix4fv(cameraMatrixLocation, 1, GL_FALSE, glm::value_ptr(this->projectionMatrix));
+}
+
+void Window::drawTextureTriangle(Vector5 triangleVertexes[3], std::string textureFile) {
+    // read the texture
+    int width;
+    int height;
+    int channels;
+
+    unsigned char* imageBytes = stbi_load(textureFile.c_str(), &width, &height, &channels, 0);
+
+    unsigned int textureId;
+    glGenTextures(1, &textureId);
+
+    glBindTexture(GL_TEXTURE_2D, textureId);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, imageBytes);
+
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    stbi_image_free(imageBytes);
+
+
+    // tell open gl what each vertex contains, (opengl position; texture pos)
+    glGenBuffers(1, &this->triangleTextureBufferId);
+
+    glGenVertexArrays(1, &this->textureVertexArrayId);
+    glBindVertexArray(this->textureVertexArrayId);
+    glBindBuffer(GL_ARRAY_BUFFER, this->triangleTextureBufferId);
+    // 0 = current buffer, number of dimensions in a vertex, type of positions, coordinate type(-1 to 1), size of each vertex(0 = auto)
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5*sizeof(GL_FLOAT), nullptr);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5*sizeof(GL_FLOAT), (void *)(3*sizeof(GL_FLOAT)));
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+
+
+    // Set correct shader, fill buffer with right data
+
+    glUseProgram(this->textureShaderProgramId);
+
+    glBindBuffer(GL_ARRAY_BUFFER, this->triangleTextureBufferId);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*3*5, triangleVertexes, GL_STATIC_DRAW);
+    glBindVertexArray(textureVertexArrayId);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
 }
