@@ -25,6 +25,11 @@ add_custom_command(TARGET GameEngine POST_BUILD
         ${CMAKE_SOURCE_DIR}/src/shaders
         $<TARGET_FILE_DIR:GameEngine>/shaders)
 
+add_custom_command(TARGET GameEngine POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/src/textures
+        $<TARGET_FILE_DIR:GameEngine>/textures)
+
 # glad
 set(GLAD_DIR "glad")
 add_library("glad" "glad/src/glad.c")
