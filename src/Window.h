@@ -154,7 +154,7 @@ public:
 
 private:
     void setCamMatrixInShader();
-    static GLuint createShaderProgram(std::string &vertexShaderFileName, std::string &fragmentShaderFileName);
+    static GLuint createShaderProgram(const std::string &vertexShaderFileName, const std::string &fragmentShaderFileName);
     GLuint loadTexture(const std::string& textureFile);
     void setupVertexArrayAndBufferForTextures();
 };

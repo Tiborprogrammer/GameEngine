@@ -102,7 +102,7 @@ File readFile(std::string name) {
     return {buffer.str(), false};
 }
 
-GLuint buildShader(std::string name, GLenum shaderType) {
+GLuint buildShader(const std::string& name, GLenum shaderType) {
     File shaderSourceCode = readFile(name);
     if (shaderSourceCode.failed) {
         std::cout << "The file " << name << " was not found! \n";
@@ -187,11 +187,12 @@ Window::Window(const WindowProperties &windowProperties) : windowProperties(wind
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
     glEnableVertexAttribArray(0);
 
-    this->mainShaderProgramId = createShaderProgram((std::string &) "shaders/vertexShader.glsl",
-                                                    (std::string &) "shaders/fragmentShader.glsl");
-
-    this->textureShaderProgramId = createShaderProgram((std::string &) "shaders/textureVertexShader.glsl",
-                                                       (std::string &) "shaders/textureFragmentShader.glsl");
+    const std::string VERTEX_SHADER = "shaders/vertexShader.glsl";
+    const std::string FRAGMENT_SHADER = "shaders/vertexShader.glsl";
+    const std::string VERTEX_SHADER_WITH_TEXTURE = "shaders/vertexShader.glsl";
+    const std::string FRAGMENT_SHADER_WITH_TEXTURE = "shaders/vertexShader.glsl";
+    this->mainShaderProgramId = createShaderProgram(VERTEX_SHADER, FRAGMENT_SHADER);
+    this->textureShaderProgramId = createShaderProgram(VERTEX_SHADER_WITH_TEXTURE, FRAGMENT_SHADER_WITH_TEXTURE);
 
     setCamMatrixInShader();
 
@@ -203,7 +204,7 @@ Window::Window(const WindowProperties &windowProperties) : windowProperties(wind
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int)*4, vertexes, GL_STATIC_DRAW);*/
 }
 
-GLuint Window::createShaderProgram(std::string &vertexShaderFileName, std::string &fragmentShaderFileName) {
+GLuint Window::createShaderProgram(const std::string &vertexShaderFileName, const std::string &fragmentShaderFileName) {
     GLuint shaderProgramId;
     GLuint fragmentShaderId = buildShader(fragmentShaderFileName, GL_FRAGMENT_SHADER);
     GLuint vertexShaderId = buildShader(vertexShaderFileName, GL_VERTEX_SHADER);
