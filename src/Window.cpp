@@ -321,6 +321,10 @@ void Window::setCamMatrixInShader() {
     glUseProgram(mainShaderProgramId);
     GLint cameraMatrixLocation = glGetUniformLocation(mainShaderProgramId, "projectionMatrix");
     glUniformMatrix4fv(cameraMatrixLocation, 1, GL_FALSE, glm::value_ptr(this->projectionMatrix));
+
+    glUseProgram(textureShaderProgramId);
+    cameraMatrixLocation = glGetUniformLocation(textureShaderProgramId, "projectionMatrix");
+    glUniformMatrix4fv(cameraMatrixLocation, 1, GL_FALSE, glm::value_ptr(this->projectionMatrix));
 }
 
 
@@ -373,6 +377,7 @@ void Window::drawTextureTriangle(Vector5 triangleVertexes[3], const std::string&
     // Set correct shader, fill buffer with right data
     glUseProgram(this->textureShaderProgramId);
 
+    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, textureId);
     glBindBuffer(GL_ARRAY_BUFFER, this->triangleTextureBufferId);
     glBufferData(GL_ARRAY_BUFFER, sizeof(float)*3*5, triangleVertexes, GL_STATIC_DRAW);
