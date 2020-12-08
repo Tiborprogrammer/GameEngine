@@ -81,8 +81,8 @@ Application::Application() {
 void Application::run() {
 
     while (running) {
-        window->translateCamera(Vector2(0.01, 0.0001));
-        window->rotateCamera(1);
+//        window->translateCamera(Vector2(0.01, 0.0001));
+//        window->rotateCamera(1);
         window->update();
     }
 }

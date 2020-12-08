@@ -188,9 +188,9 @@ Window::Window(const WindowProperties &windowProperties) : windowProperties(wind
     glEnableVertexAttribArray(0);
 
     const std::string VERTEX_SHADER = "shaders/vertexShader.glsl";
-    const std::string FRAGMENT_SHADER = "shaders/vertexShader.glsl";
-    const std::string VERTEX_SHADER_WITH_TEXTURE = "shaders/vertexShader.glsl";
-    const std::string FRAGMENT_SHADER_WITH_TEXTURE = "shaders/vertexShader.glsl";
+    const std::string FRAGMENT_SHADER = "shaders/fragmentShader.glsl";
+    const std::string VERTEX_SHADER_WITH_TEXTURE = "shaders/textureVertexShader.glsl";
+    const std::string FRAGMENT_SHADER_WITH_TEXTURE = "shaders/textureFragmentShader.glsl";
     this->mainShaderProgramId = createShaderProgram(VERTEX_SHADER, FRAGMENT_SHADER);
     this->textureShaderProgramId = createShaderProgram(VERTEX_SHADER_WITH_TEXTURE, FRAGMENT_SHADER_WITH_TEXTURE);
 
@@ -280,6 +280,7 @@ void Window::drawRect(Vector2 bottomLeft, Vector2 size) {
 };
 
 void Window::setColor(Vector3 color, float opacity) {
+    glUseProgram(mainShaderProgramId);
     GLint colorVarLocation = glGetUniformLocation(this->mainShaderProgramId, "color");
     glProgramUniform4f(this->mainShaderProgramId, colorVarLocation, color.x, color.y, color.z, opacity);
 }
