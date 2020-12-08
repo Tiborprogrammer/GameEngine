@@ -15,6 +15,7 @@
 #include <functional>
 #include "Layer.h"
 #include <vector>
+#include <unordered_map>
 #include <glm/detail/type_mat4x4.hpp>
 
 struct WindowProperties {
@@ -117,6 +118,7 @@ class Window {
     GLuint triangleBufferId;
     std::vector<Layer*> layers;
     glm::mat4 projectionMatrix = glm::mat4(1.0);
+    std::unordered_map<std::string, GLuint> texturesBufferId;
 
 
 public:
@@ -145,7 +147,7 @@ public:
     void translateCamera(Vector2 position);
     void rotateCamera(float angle);
     void resetCamera();
-    void drawTextureTriangle(Vector5 triangleVertexes[3], std::string textureFile);
+    void drawTextureTriangle(Vector5 triangleVertexes[3], const std::string& textureFile);
 
     Vector2 pixelToPercent(Vector2 position);
     float lerp(float percentage, float toMin, float toMax);
@@ -153,6 +155,8 @@ public:
 private:
     void setCamMatrixInShader();
     static GLuint createShaderProgram(std::string &vertexShaderFileName, std::string &fragmentShaderFileName);
+    GLuint loadTexture(const std::string& textureFile);
+    void setupVertexArrayAndBufferForTextures();
 };
 
 

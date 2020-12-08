@@ -190,10 +190,12 @@ Window::Window(const WindowProperties &windowProperties) : windowProperties(wind
     this->mainShaderProgramId = createShaderProgram((std::string &) "shaders/vertexShader.glsl",
                                                     (std::string &) "shaders/fragmentShader.glsl");
 
-    this->textureShaderProgramId = createShaderProgram((std::string &) "shaders/textureVertexShader",
+    this->textureShaderProgramId = createShaderProgram((std::string &) "shaders/textureVertexShader.glsl",
                                                        (std::string &) "shaders/textureFragmentShader.glsl");
 
     setCamMatrixInShader();
+
+    setupVertexArrayAndBufferForTextures();
     /*unsigned int indicesArray[] = {0, 1, 2, 3};
     unsigned int indicesBufferId;
     glGenBuffers(1, &indicesBufferId);
@@ -320,43 +322,57 @@ void Window::setCamMatrixInShader() {
     glUniformMatrix4fv(cameraMatrixLocation, 1, GL_FALSE, glm::value_ptr(this->projectionMatrix));
 }
 
-void Window::drawTextureTriangle(Vector5 triangleVertexes[3], std::string textureFile) {
-    // read the texture
-    int width;
-    int height;
-    int channels;
 
-    unsigned char* imageBytes = stbi_load(textureFile.c_str(), &width, &height, &channels, 0);
-
-    unsigned int textureId;
-    glGenTextures(1, &textureId);
-
-    glBindTexture(GL_TEXTURE_2D, textureId);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, imageBytes);
-
-    glGenerateMipmap(GL_TEXTURE_2D);
-
-    stbi_image_free(imageBytes);
-
-
+void Window::setupVertexArrayAndBufferForTextures() {
     // tell open gl what each vertex contains, (opengl position; texture pos)
     glGenBuffers(1, &this->triangleTextureBufferId);
-
     glGenVertexArrays(1, &this->textureVertexArrayId);
+
     glBindVertexArray(this->textureVertexArrayId);
     glBindBuffer(GL_ARRAY_BUFFER, this->triangleTextureBufferId);
+
     // 0 = current buffer, number of dimensions in a vertex, type of positions, coordinate type(-1 to 1), size of each vertex(0 = auto)
+
+    // attribute(opengl pos, texture pos), numberOfVars, typeOfVar, needForNormalization(-1, 1), distance to next vertexes same attribute, distance the attrib in a vertex for texture pos its 3 floats
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5*sizeof(GL_FLOAT), nullptr);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5*sizeof(GL_FLOAT), (void *)(3*sizeof(GL_FLOAT)));
+
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
+}
 
+GLuint Window::loadTexture(const std::string& textureFile) {
+    if (texturesBufferId.find(textureFile) == texturesBufferId.end()) {
+        // read the texture
+        int width;
+        int height;
+        int numberOfChannels;
 
+        unsigned char *imageBytes = stbi_load(textureFile.c_str(), &width, &height, &numberOfChannels, 0);
+
+        unsigned int textureId;
+        glGenTextures(1, &textureId);
+
+        glBindTexture(GL_TEXTURE_2D, textureId);
+
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, imageBytes);
+
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        stbi_image_free(imageBytes);
+
+        texturesBufferId[textureFile] = textureId;
+    }
+
+    return texturesBufferId[textureFile];
+}
+
+void Window::drawTextureTriangle(Vector5 triangleVertexes[3], const std::string& textureFile) {
+    GLuint textureId = loadTexture(textureFile);
     // Set correct shader, fill buffer with right data
-
     glUseProgram(this->textureShaderProgramId);
 
+    glBindTexture(GL_TEXTURE_2D, textureId);
     glBindBuffer(GL_ARRAY_BUFFER, this->triangleTextureBufferId);
     glBufferData(GL_ARRAY_BUFFER, sizeof(float)*3*5, triangleVertexes, GL_STATIC_DRAW);
     glBindVertexArray(textureVertexArrayId);
