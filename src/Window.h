@@ -131,10 +131,10 @@ public:
     unsigned int getWidth() const { return windowProperties.width; };
     unsigned int getHeight() const { return windowProperties.height; };
     std::string getTitle() const { return windowProperties.title; };
-    Window(const WindowProperties &windowProperties = WindowProperties());
+    explicit Window(const WindowProperties &windowProperties = WindowProperties());
 
 
-    void drawTriangle(Vector2 vertexes[3]);
+    void drawTriangle(Vector2 vertexes[3]) const;
     void drawRect(Vector2 vertexes[2]);
     void drawRect(Vector2 bottomLeft, Vector2 size);
     void startDraw();

@@ -6,19 +6,20 @@
 #include "Window.h"
 
 void BackgroundLayer::Render() {
-    window.setColor(Vector3(0, 255, 0), 255);
-    window.drawRect(Vector2(-1, -1), Vector2(2, 0.3));
+//    window.setColor(Vector3(0, 255, 0), 255);
+//    window.drawRect(Vector2(-1, -1), Vector2(2, 0.3));
+//
+//    window.setColor(Vector3(0, 0, 255), 255);
+//    window.drawRect(Vector2(-1, -1+0.3), Vector2(2, 1.7));
 
     window.setColor(Vector3(0, 0, 255), 255);
-    window.drawRect(Vector2(-1, -1+0.3), Vector2(2, 1.7));
+    window.drawRect(Vector2(-1, -1), Vector2(2, 2));
 
-
-    /*
     Vector5 triangleVertexes[3] = {
-            {0, 1, 0, 0.5, 1},
-            {-1, -1, 0, 0, 0},
-            {1, -1, 0, 1, 0}
-            };
+        {1., -1, 0, 1, 0},
+        {-1., -1, 0, 0, 0},
+        {0, 1, 0, 0.5, 1},
+    };
 
-    window.drawTextureTriangle(triangleVertexes, "textures/wood.jpg");*/
+    window.drawTextureTriangle(triangleVertexes, "textures/wood.jpg");
 }

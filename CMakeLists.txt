@@ -14,7 +14,7 @@ add_executable(GameEngine src/main.cpp src/events/Event.h
         src/Application.cpp src/Application.h
         src/Layer.cpp src/Layer.h
         src/BackgroundLayer.cpp src/BackgroundLayer.h
-        src/libs/stb_image.h src/readimage.cpp)
+        src/libs/stb_image.h)
 
 if (UNIX)
     set (CMAKE_CXX_LINK_EXECUTABLE "${CMAKE_CXX_LINK_EXECUTABLE} -ldl  ")
